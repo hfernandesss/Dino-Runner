@@ -91,15 +91,15 @@ byte passaroB[8] = {
   B00000
 };
 
-int oi;
+
 int ponto_provisorio = 0;
 int marcador_run = 0;
 int i = 0;
 
-//posicao do enimigo 1
+//posicao do inimigo 1
 int n = 15;
 
-//posicao do enimigo 2
+//posicao do inimigo 2
 int n2 = 15;
 
 //pontuacao
@@ -108,17 +108,29 @@ int pontos = 0;
 //flag para ver se o dinossauro esta no ar ou no chao
 int flagDino = 1;
 
-//int para mudar as pernas do dinossauro e as asas do 
+//int para mudar as pernas do dinossauro e as asas do passaro
 int andar = 1;
+
+//guarda o tempo em que o dinossauro passou no ar
 int tempopulo = 0;
-int sla = 3;
+
+//troca o inicio dos numeros da pontuacao para mais digitos
+int atualiza = 3;
+
+//guarda a velocidade em que o jogo vai roda
 int velocidade = 0;
+
+//conta o intervalo entre dois inimigos
 int pascac = 0;
+
+//conta se o inimigo 1 sera algum dos cactos ou um passaro 
 int enemi = 0;
+
+//conta se o inimigo 2 sera algum dos cactos ou um passaro
 int enemi2 = 0;
 
 void setup() {
-  pinMode(9,INPUT);
+  pinMode(9,INPUT);//Botao
   pinMode(6,OUTPUT);//Buzzer
   lcd.createChar(5, cacto2);
   lcd.createChar(6, cacto);
@@ -129,20 +141,24 @@ void setup() {
   lcd.createChar(11, passaroB);
   lcd.begin(16, 2);
   
+  //Menu
   lcd.setCursor(3,0);
   lcd.print("DINO RUNNER");
   lcd.setCursor(0,1);
+  
+  //literalmente qualquer botao funciona 
   lcd.print("Press any button");
   
+  //aguarda o individuo apertar o botao
  while(!digitalRead(9)){
  	
  }
-  
+  //preparacao para o inicio do jogo
     tone(6,294,300);
     delay(200);
     tone(6,392,200);
-  delay(500);
-  lcd.clear();
+  	delay(500);
+  	lcd.clear();
   
  
 }
@@ -165,25 +181,30 @@ void loop() {
   printaDinossauroMovimento();
   
   if(pascac == 0){
+    
     if(enemi== 0){
       enemi = random(1,4);
     }else{
       enemi2 = random(1,4);
     }
-    pascac = 8;
+    //o valor da variável vai de 8 a zero pois como o display é 16x2, 8 é a metade da tela, dessa forma os cactos e passaros vao espaçados na mesma distancia 
+    pascac = 8; 
   }
-   	pascac-=1;
-  if(enemi > 1){
+  //indo de 8 a zero novamente
+  pascac-=1;
+  
+  if(enemi > 1){ //maior do que 1 é cacto
     n = printCacto(n,enemi);
     if(n == 15){
       enemi = 0;
     }
-  }else if(enemi == 1){
+  }else if(enemi == 1){ //igual a 1 é passaro
     n = printPassaro(n);
     if(n == 15){
       enemi = 0;
     }
   }
+  
   if(enemi2 > 1){
     n2 = printCacto(n2,enemi2);
     if(n2 == 15){
@@ -195,26 +216,27 @@ void loop() {
       enemi2 = 0;
     }
   }
-	lcd.setCursor(12+sla,0);
+	lcd.setCursor(12+atualiza,0);
     lcd.print(pontos);
   
     flagDino = 1;
-  	pontos+=1;
+  	pontos+=1; //cada passo do dinossauro é um novo ponto
  
-  if(velocidade <200){
-  	velocidade +=1;
+  if(velocidade <200){ //limite pela segurança do funcionamento do jogo
+  	velocidade +=1; //aumento da velocidade
   }
+  //aumento da casa de valores da pontuação do jogador 
   if(pontos == 10){
-    sla -= 1;
+    atualiza -= 1;
   }
    if(pontos == 100){
-    sla -= 1;
+    atualiza -= 1;
      tone(6,294,300); //RE
     delay(50);
      tone(6,392,200);
   }
   if(pontos == 1000){
-    sla -= 1;
+    atualiza -= 1;
     tone(6,294,300); //RE
     delay(50);
     tone(6,392,200);
@@ -227,46 +249,9 @@ int printCacto(int b, int m){
        lcd.setCursor(b-=1,1);
        lcd.write(3+m);
        
-  if(flagDino == 1 && b == 1){
-    lcd.clear();
-    lcd.setCursor(3,0);
-    lcd.print("Game Over");
-    lcd.setCursor(0,1);
-    lcd.print("Pontuacao:");
-     if(marcador_run > 0){
-     ponto_provisorio = readIntFromEEPROM(0);
-     
-    }
-    if(ponto_provisorio < pontos){
-      writeIntIntoEEPROM(0, pontos);
-    }
-    tone(6,392,200);
-    lcd.setCursor(10,1);
-    lcd.print(pontos);
-    delay(500);
-    marcador_run++;
-    while(!digitalRead(9)){
-    }
-    lcd.clear();
-    lcd.setCursor(0,0);
-    ponto_provisorio = readIntFromEEPROM(0);
-    lcd.print("Maior pontuacao");
-    lcd.setCursor(5,1);
-    lcd.print(ponto_provisorio);
-    delay(1000);
-    tone(6,294,300);
-    delay(200);
-    tone(6,392,200);
-    sla = 3;
-  	pontos = 0;
-    velocidade = 0;
-    n = 15;
-    n2 = 15;
-    enemi = 0; 
-    enemi2 = 0;
-    pascac = 0;
-    lcd.clear();
-    return 15;
+  if(flagDino == 1 && b == 1){ //game over: cacto e dinossauro na mesma casa
+    funcaoGameOver ();
+    return 15; // para setar enemi = 0 no inicio do código 
   }
   
   if(b==0){
@@ -280,50 +265,15 @@ int printPassaro(int b){
        lcd.setCursor(b-=1,0);
        lcd.write(10+andar);
        
-  if(flagDino == 0 && b == 1){
-    lcd.clear();
-    lcd.setCursor(3,0);
-    lcd.print("Game Over");
-    lcd.setCursor(0,1);
-    lcd.print("Pontuacao:");
-    if(marcador_run > 0){
-     ponto_provisorio = readIntFromEEPROM(0);
-    }
-    if(ponto_provisorio < pontos){
-      writeIntIntoEEPROM(0, pontos);
-    }
-    tone(6,392,200);
-    lcd.setCursor(10,1);
-    lcd.print(pontos);
-    delay(500);
-    marcador_run++;
-    while(!digitalRead(9)){
-    }
-    lcd.clear();
-    lcd.setCursor(0,0);
-    ponto_provisorio = readIntFromEEPROM(0);
-    lcd.print("Maior pontuacao");
-    lcd.setCursor(5,1);
-    lcd.print(ponto_provisorio);
-    delay(1000);
-    tone(6,294,300);
-    delay(200);
-    tone(6,392,200);
-    sla = 3;
-  	pontos = 0;
-    velocidade = 0;
-    n = 15;
-    n2 = 15;
-    enemi = 0; 
-    enemi2 = 0;
-    pascac = 0;
-    lcd.clear();
+  if(flagDino == 0 && b == 1){ //dino no ar e passaro na mesma casa que ele
+    funcaoGameOver ();
     return 15;
   }
   
   if(b==0){
     b = 15;
   }
+  
   return b;
 }
 
@@ -337,6 +287,54 @@ void printaDinossauroMovimento(){
     }else{
      	andar = 1;
     } 
+}
+
+//Funçao de Game Over
+int funcaoGameOver (){
+  	lcd.clear();
+    lcd.setCursor(3,0);
+    lcd.print("Game Over");
+    lcd.setCursor(0,1);
+    lcd.print("Pontuacao:");
+     
+    if(marcador_run > 0){  
+     ponto_provisorio = readIntFromEEPROM(0); 
+    }
+    
+    if(ponto_provisorio < pontos){ //checa se a pontuação atual é maior do que a nova
+      writeIntIntoEEPROM(0, pontos);
+    }
+    
+    tone(6,392,200);
+    lcd.setCursor(10,1);
+    lcd.print(pontos);
+    delay(500);
+    marcador_run++;
+    
+    while(!digitalRead(9)){
+    }
+    
+    lcd.clear();
+    lcd.setCursor(0,0);
+    ponto_provisorio = readIntFromEEPROM(0);
+    lcd.print("Maior pontuacao");
+    lcd.setCursor(5,1);
+    lcd.print(ponto_provisorio); 
+    delay(1000);
+    tone(6,294,300);
+    delay(200);
+    tone(6,392,200);
+    atualiza = 3;
+  	//reseta as variáveis para um novo jogo
+    pontos = 0;
+    velocidade = 0; 
+    n = 15;
+    n2 = 15;
+    enemi = 0; 
+    enemi2 = 0;
+    pascac = 0;
+    lcd.clear();
+  
 }
 
 //Funcao para guardar um inteiro na EEPROM

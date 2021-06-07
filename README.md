@@ -1,8 +1,9 @@
 # Dino-Runner
 O projeto consiste em uma recriação do jogo "Dino Runner" do google em Arduino.
 
-![image](https://user-images.githubusercontent.com/78235678/121098315-965a9100-c7c3-11eb-9a6d-f76a7a900e6a.png)
 
+Menu Inicial do Jogo:
+![image](https://user-images.githubusercontent.com/78235678/121098315-965a9100-c7c3-11eb-9a6d-f76a7a900e6a.png)
 
 ![image](https://user-images.githubusercontent.com/78235678/121098247-7034f100-c7c3-11eb-8ab3-214202171db5.png)
 
